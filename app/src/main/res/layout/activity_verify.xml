@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Trang web đang kiểm tra bạn là người thật (Cloudflare). Thường nó TỰ kiểm tra xong sau vài giây — cứ chờ trang phim hiện ra, app sẽ tự quay lại và tải tiếp. Nếu hiện ô tick &quot;Tôi là con người&quot; thì tick vào. Nếu quay quá 1 phút vẫn không xong, bấm nút Tải lại trang ở dưới."
+        android:textSize="14sp" />
+
+    <WebView
+        android:id="@+id/wvVerify"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerifyReload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Tải lại trang xác minh" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerifyDone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Đã hiện trang phim — Quay lại app" />
+</LinearLayout>

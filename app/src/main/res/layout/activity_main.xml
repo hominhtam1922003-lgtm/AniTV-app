@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="AniTV"
+        app:titleTextColor="#FFFFFF"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Thanh tab tu dung: BottomNavigationView cua Material chi cho toi da
+         5 muc, them muc thu 6 (18+) la sap app ngay khi mo. Thanh nay chua
+         du 6 the, MainActivity tu xu ly bam + to mau the dang chon. -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:elevation="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tabHome"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/ic_menu_gallery"
+            android:text="Trang chủ" />
+
+        <TextView
+            android:id="@+id/tabSingle"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/ic_menu_view"
+            android:text="Anime lẻ" />
+
+        <TextView
+            android:id="@+id/tabSeries"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/ic_menu_today"
+            android:text="Anime bộ" />
+
+        <TextView
+            android:id="@+id/tabCinema"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/ic_menu_myplaces"
+            android:text="Nhật Bản" />
+
+        <TextView
+            android:id="@+id/tabFilter"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/ic_menu_search"
+            android:text="Donghua" />
+
+        <TextView
+            android:id="@+id/tabFavorites"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/star_big_on"
+            android:text="Yêu thích" />
+
+        <TextView
+            android:id="@+id/tabHistory"
+            style="@style/BottomTab"
+            android:drawableTop="@android:drawable/ic_menu_recent_history"
+            android:text="Lịch sử" />
+    </LinearLayout>
+</LinearLayout>

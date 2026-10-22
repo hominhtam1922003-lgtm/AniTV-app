@@ -1,0 +1,83 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.example.anitv'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.example.anitv'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // Tai + parse HTML nguon truyen
+    implementation 'org.jsoup:jsoup:1.18.1'
+    // Tai anh bia + anh trang truyen
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    // Kiem tra chap moi dinh ky o nen (thong bao)
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
+}
+
+// ---- Icon launcher (ban 2.0) ----
+// Kenh day code len GitHub chi nhan file VAN BAN nen cac PNG icon duoc
+// luu dang base64 trong app/icon-b64/ (a anh xa theo cau truc res).
+// Task nay giai nen chung thanh PNG that vao thu muc res phat sinh
+// truoc khi dong goi tai nguyen; noi dung PNG khong doi 1 byte.
+def aniIconOut = layout.buildDirectory.dir('generated/aniIcons/res')
+tasks.register('generateAniIcons') {
+    def b64Dir = layout.projectDirectory.dir('icon-b64')
+    inputs.dir(b64Dir)
+    outputs.dir(aniIconOut)
+    doLast {
+        def srcRoot = b64Dir.asFile
+        def outRoot = aniIconOut.get().asFile
+        srcRoot.eachFileRecurse { f ->
+            if (f.name.endsWith('.b64')) {
+                def rel = srcRoot.toPath().relativize(f.toPath()).toString()
+                def target = new File(outRoot, rel.replace('.b64', ''))
+                target.parentFile.mkdirs()
+                target.bytes = java.util.Base64.decoder.decode(
+                    f.getText('UTF-8').replaceAll('\\s', ''))
+            }
+        }
+    }
+}
+android {
+    sourceSets {
+        main {
+            res.srcDirs += aniIconOut.get().asFile
+        }
+    }
+}
+tasks.configureEach { t ->
+    if (t.name == 'preBuild') {
+        t.dependsOn('generateAniIcons')
+    }
+}
