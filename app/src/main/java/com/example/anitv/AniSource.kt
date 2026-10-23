@@ -189,7 +189,6 @@ object AniSource {
 
     /** Ma quoc gia trong bang ma API: Nhat Ban / Trung Quoc. */
     const val COUNTRY_JAPAN = "8"
-    const val COUNTRY_CHINA = "1"
 
     /**
      * Tim kiem trong AniTV: khoa san the loai Hoat Hinh. Neu ket hop
@@ -227,9 +226,7 @@ object AniSource {
             "Anime lẻ (movie)" to
                 mapOf("genres" to ANIME_GENRE, "type" to "movie"),
             "Anime Nhật Bản" to
-                mapOf("genres" to ANIME_GENRE, "countries" to COUNTRY_JAPAN),
-            "Donghua Trung Quốc" to
-                mapOf("genres" to ANIME_GENRE, "countries" to COUNTRY_CHINA)
+                mapOf("genres" to ANIME_GENRE, "countries" to COUNTRY_JAPAN)
         )
         val out = ArrayList<HomeSection>()
         for ((name, params) in defs) {

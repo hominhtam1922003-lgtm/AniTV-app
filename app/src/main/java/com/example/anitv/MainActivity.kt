@@ -43,8 +43,12 @@ class MainActivity : AppCompatActivity() {
         val tabFilter = findViewById<TextView>(R.id.tabFilter)
         val tabFavorites = findViewById<TextView>(R.id.tabFavorites)
         val tabHistory = findViewById<TextView>(R.id.tabHistory)
+        // Tu v1.0.2: AniTV tap trung han vao ANIME Nhat — tab Donghua
+        // da go (donghua chuyen sang app "Donghua" rieng, nguon
+        // hhkungfu.ee); an han the tab khoi thanh dieu huong.
+        tabFilter.visibility = android.view.View.GONE
         tabs = listOf(
-            tabHome, tabSingle, tabSeries, tabCinema, tabFilter,
+            tabHome, tabSingle, tabSeries, tabCinema,
             tabFavorites, tabHistory
         )
 
@@ -61,7 +65,6 @@ class MainActivity : AppCompatActivity() {
             select(tabCinema)
             show(BrowseFragment.newInstanceParams("Anime Nhật Bản", genres = AniSource.ANIME_GENRE, countries = AniSource.COUNTRY_JAPAN))
         }
-        tabFilter.setOnClickListener { select(tabFilter); show(BrowseFragment.newInstanceParams("Donghua Trung Quốc", genres = AniSource.ANIME_GENRE, countries = AniSource.COUNTRY_CHINA)) }
         tabFavorites.setOnClickListener {
             // Thong bao tap moi gan voi phim yeu thich:
             // chua co quyen thi xin lai tai day (Android 13+)
