@@ -119,6 +119,44 @@ class PlayerActivity : AppCompatActivity() {
         """
     }
 
+    /**
+     * An thanh tren cung cua trang phat embed (#player_top: ten phim +
+     * thong tin tap + nut danh sach tap) sau ~3 giay khong cham; cham
+     * vao man hinh thi hien lai. Thanh nay cua web chi tu an theo
+     * chuot may tinh nen trong WebView dien thoai no dinh vinh vien.
+     */
+    private val CHROME_JS = """
+        (function(){
+          if (window.__anitvChrome) return 'ok';
+          window.__anitvChrome = true;
+          var timer = null;
+          function bar(){ return document.getElementById('player_top'); }
+          function hide(){
+            timer = null;
+            var el = bar(); if (!el) return;
+            el.style.transition = 'opacity .35s ease';
+            el.style.opacity = '0';
+            el.style.pointerEvents = 'none';
+          }
+          function show(){
+            var el = bar(); if (!el) return;
+            el.style.transition = 'opacity .35s ease';
+            el.style.opacity = '1';
+            el.style.pointerEvents = 'auto';
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(hide, 3000);
+          }
+          document.addEventListener('touchstart', show, true);
+          document.addEventListener('click', show, true);
+          setTimeout(show, 800);
+          setInterval(function(){
+            var el = bar();
+            if (el && el.style.opacity !== '0' && !timer) show();
+          }, 4000);
+          return 'ok';
+        })()
+    """.trimIndent()
+
     private enum class Kind { HLS, DIRECT, EMBEDPAGE }
     private data class Candidate(val kind: Kind, val url: String, val label: String = "")
 
@@ -138,6 +176,26 @@ class PlayerActivity : AppCompatActivity() {
     // Danh dau moi lan doi ung vien: ket qua loc playlist (chay nen)
     // chi duoc ap dung neu chua doi sang ung vien khac
     private var playToken = 0
+    private val chromeHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var hideServerRunnable: Runnable? = null
+
+    /** Nut doi server: hien roi tu an sau 3,5 giay; cham man hinh hien lai. */
+    private fun showServerButton() {
+        hideServerRunnable?.let { chromeHandler.removeCallbacks(it) }
+        if (candidates.size <= 1 || customView != null) {
+            btnServer.visibility = View.GONE
+            return
+        }
+        btnServer.visibility = View.VISIBLE
+        val r = Runnable { btnServer.visibility = View.GONE }
+        hideServerRunnable = r
+        chromeHandler.postDelayed(r, 3500)
+    }
+
+    private fun cancelServerHide() {
+        hideServerRunnable?.let { chromeHandler.removeCallbacks(it) }
+        hideServerRunnable = null
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -182,6 +240,15 @@ class PlayerActivity : AppCompatActivity() {
             loadWithOverviewMode = true
             useWideViewPort = true
         }
+        // Cham vao man hinh phat -> hien lai nut doi server (no se tu
+        // an sau vai giay de khoi dinh man hinh). Tra false de khong
+        // chan su kien cham cua chinh trang phat (tam dung/phat tiep).
+        webView.setOnTouchListener { _, ev ->
+            if (ev.action == android.view.MotionEvent.ACTION_DOWN) {
+                showServerButton()
+            }
+            false
+        }
         // Trang HLS noi bo bao loi phat ve day de tu doi server
         webView.addJavascriptInterface(object {
             @JavascriptInterface
@@ -210,6 +277,7 @@ class PlayerActivity : AppCompatActivity() {
                     )
                 }
                 webView.visibility = View.GONE
+                cancelServerHide()
                 btnServer.visibility = View.GONE
             }
 
@@ -221,7 +289,7 @@ class PlayerActivity : AppCompatActivity() {
                 customCallback?.onCustomViewHidden()
                 customCallback = null
                 webView.visibility = View.VISIBLE
-                if (candidates.size > 1) btnServer.visibility = View.VISIBLE
+                showServerButton()
             }
         }
 
@@ -251,6 +319,9 @@ class PlayerActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 progress.visibility = View.GONE
+                // Cai co che tu an cho thanh ten phim cua trang embed
+                // (trang noi bo cua app khong co #player_top nen no-op)
+                view?.evaluateJavascript(CHROME_JS, null)
                 // EMBED gio nam trong iframe khac goc (wrapper) nen khong
                 // cham duoc DOM ben trong nua; chan quang cao o tang mang
                 // (AdBlock) van ap dung cho moi request cua player.
@@ -597,7 +668,7 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             "Server ${index + 1}/${candidates.size} ⟳"
         }
-        btnServer.visibility = if (candidates.size > 1) View.VISIBLE else View.GONE
+        showServerButton()
         progress.visibility = View.VISIBLE
         when (c.kind) {
             Kind.EMBEDPAGE -> {
@@ -613,6 +684,11 @@ class PlayerActivity : AppCompatActivity() {
                         "Referer" to AniSource.BASE + "/"
                     )
                 )
+                // Cai lai co che an thanh ten phim sau khi trang on
+                // dinh (DOM cua trang embed co the dung lai muon)
+                chromeHandler.postDelayed({
+                    if (!isFinishing) webView.evaluateJavascript(CHROME_JS, null)
+                }, 2000)
             }
             Kind.HLS -> {
                 targetHost = ""
